@@ -6,80 +6,80 @@
 
 int rows, cols;
 
-int numOfMines = 0;		// 지뢰 개수
-int newGame = 1;		// 방금 시작된 게임인지 확인
-int flagCount = 0;		// 깃발 개수
-int clearValidate = 0;	// 클리어 판정용 카운터
+int numOfMines = 0;     // 지뢰 개수
+int newGame = 1;        // 방금 시작된 게임인지 확인
+int flagCount = 0;      // 깃발 개수
+int clearValidate = 0;  // 클리어 판정용 카운터
 
 void colorOn();
 
 // 게임 화면 업데이트
 void updateDisplay(int **f, int *w, int *h, int *cx, int *cy)
 {
-	int i, j;
-	int isCursor;
-	int num;
+  int i, j;
+  int isCursor;
+  int num;
   int color;
   char ch;
 
   clear();
-	mvprintw(0, 0, "===== Minesweeper === %03d mines out of %03d === (%02d, %02d) =====", flagCount, numOfMines, *cx, *cy);
-	if (newGame)
-	{
+  mvprintw(0, 0, "===== Minesweeper === %03d mines out of %03d === (%02d, %02d) =====", flagCount, numOfMines, *cx, *cy);
+  if (newGame)
+  {
     attron(COLOR_PAIR(4));
-		mvprintw(2, 8, "Step anywhere to start the game!");
+    mvprintw(2, 8, "Step anywhere to start the game!");
     attroff(COLOR_PAIR(4));
-	}
+  }
 
-	for (i=0; i<*h; i++)
-	{
-		move(4 + i, 8);
-		for (j=0; j<*w; j++)
-		{
-			if (f[i][j] & _MF_DISP_UNKNOWN)
+  for (i=0; i<*h; i++)
+  {
+    move(4 + i, 8);
+    for (j=0; j<*w; j++)
+    {
+      if (f[i][j] & _MF_DISP_UNKNOWN)
       {
         color = 200;
         ch = '.';
       }
-			else if (f[i][j] & _MF_DISP_FLAG)
-			{
+      else if (f[i][j] & _MF_DISP_FLAG)
+      {
         color = 201;
-				ch = 'F';
-			}
-			else if (f[i][j] & _MF_DISP_QUESTION)
+        ch = 'F';
+      }
+      else if (f[i][j] & _MF_DISP_QUESTION)
       {
         color = 202;
         ch = '?';
       }
-			else if (f[i][j] & _MF_DISP_EMPTY)
-			{
+      else if (f[i][j] & _MF_DISP_EMPTY)
+      {
         color = 203;
-				ch = ' ';
-			}
-			else if (f[i][j] & _MF_DISP_NUMBER)
-			{
-				num = (f[i][j] % 0x10000000) / 0x01000000;
+        ch = ' ';
+      }
+      else if (f[i][j] & _MF_DISP_NUMBER)
+      {
+        num = (f[i][j] % 0x10000000) / 0x01000000;
         color = 100 + num;
-				ch = '0' + num;
-			}
-			else if (f[i][j] & _MF_DISP_MINE)
-			{
+        ch = '0' + num;
+      }
+      else if (f[i][j] & _MF_DISP_MINE)
+      {
         color = 204;
-				ch = '@';
-			}
-			else if (f[i][j] & _MF_DISP_MINE_CLR)
-			{
+        ch = '@';
+      }
+      else if (f[i][j] & _MF_DISP_MINE_CLR)
+      {
         color = 205;
-				ch = '@';
-			}
+        ch = '@';
+      }
 
       attron(COLOR_PAIR(color));
       addch(ch);
       attroff(COLOR_PAIR(color));
-		}
-	}
+    }
+  }
   attron(COLOR_PAIR(1));
-	mvprintw(rows - 1, 0, "ARROW/hjkl: MOVE    f: FLAG    q: NOTSURE    s: STEP");
+  mvprintw(rows - 1, 0, "ARROW/hjkl: MOVE    f: FLAG    q: NOTSURE    s: STEP");
   attroff(COLOR_PAIR(1));
   move(4 + *cy, 8 + *cx);
 
@@ -89,140 +89,140 @@ void updateDisplay(int **f, int *w, int *h, int *cx, int *cy)
 // 깃발 꽂기
 void setFlag(int **f, int *cx, int *cy)
 {
-	int *cp = &f[*cy][*cx];
+  int *cp = &f[*cy][*cx];
 
-	if (*cp & _MF_DISP_UNKNOWN)
-	{
-		*cp -= _MF_DISP_UNKNOWN;
-		*cp |= _MF_DISP_FLAG;
-		flagCount++;
-	}
-	else if (*cp & _MF_DISP_QUESTION)
-	{
-		*cp -= _MF_DISP_QUESTION;
-		*cp |= _MF_DISP_FLAG;
-		flagCount++;
-	}
-	else if (*cp & _MF_DISP_FLAG)
-	{
-		*cp -= _MF_DISP_FLAG;
-		*cp |= _MF_DISP_UNKNOWN;
-		flagCount--;
-	}
+  if (*cp & _MF_DISP_UNKNOWN)
+  {
+    *cp -= _MF_DISP_UNKNOWN;
+    *cp |= _MF_DISP_FLAG;
+    flagCount++;
+  }
+  else if (*cp & _MF_DISP_QUESTION)
+  {
+    *cp -= _MF_DISP_QUESTION;
+    *cp |= _MF_DISP_FLAG;
+    flagCount++;
+  }
+  else if (*cp & _MF_DISP_FLAG)
+  {
+    *cp -= _MF_DISP_FLAG;
+    *cp |= _MF_DISP_UNKNOWN;
+    flagCount--;
+  }
 }
 
 // 물음표
 void setQuestionMark(int **f, int *cx, int *cy)
 {
-	int *cp = &f[*cy][*cx];
+  int *cp = &f[*cy][*cx];
 
-	if (*cp & _MF_DISP_UNKNOWN)
-	{
-		*cp -= _MF_DISP_UNKNOWN;
-		*cp |= _MF_DISP_QUESTION;
-	}
-	else if (*cp & _MF_DISP_FLAG)
-	{
-		*cp -= _MF_DISP_FLAG;
-		*cp |= _MF_DISP_QUESTION;
-		flagCount--;
-	}
-	else if (*cp & _MF_DISP_QUESTION)
-	{
-		*cp -= _MF_DISP_QUESTION;
-		*cp |= _MF_DISP_UNKNOWN;
-	}
+  if (*cp & _MF_DISP_UNKNOWN)
+  {
+    *cp -= _MF_DISP_UNKNOWN;
+    *cp |= _MF_DISP_QUESTION;
+  }
+  else if (*cp & _MF_DISP_FLAG)
+  {
+    *cp -= _MF_DISP_FLAG;
+    *cp |= _MF_DISP_QUESTION;
+    flagCount--;
+  }
+  else if (*cp & _MF_DISP_QUESTION)
+  {
+    *cp -= _MF_DISP_QUESTION;
+    *cp |= _MF_DISP_UNKNOWN;
+  }
 }
 
 // 밟기
 int step(int **f, int *w, int *h, int *cx, int *cy)
 {
-	int count = 0;
-	int i, j;
+  int count = 0;
+  int i, j;
 
-	// 게임 시작 직후에는 어디를 밟더라도 지뢰가 터지지 않아야 함
-	if (newGame)
-	{
-		newGame = 0;
-		// 지뢰 뿌리기
-		for (i=0; i<rand()%(*h)+rand()%6+1; i++)
-		{
-			for (j=0; j<rand()%(*w)+rand()%6+1; j++)
-			{
-				f[rand()%(*h)][rand()%(*w)] |= _MF_MINE;
-			}
-		}
-		if (f[*cy][*cx] & _MF_MINE) f[*cy][*cx] -= _MF_MINE;
-		// 지뢰 개수 세기
-		for (i=0; i<*h; i++)
-		{
-			for (j=0; j<*w; j++) if (f[i][j] & _MF_MINE) numOfMines++;
-		}
-	}
+  // 게임 시작 직후에는 어디를 밟더라도 지뢰가 터지지 않아야 함
+  if (newGame)
+  {
+    newGame = 0;
+    // 지뢰 뿌리기
+    for (i=0; i<rand()%(*h)+rand()%6+1; i++)
+    {
+      for (j=0; j<rand()%(*w)+rand()%6+1; j++)
+      {
+        f[rand()%(*h)][rand()%(*w)] |= _MF_MINE;
+      }
+    }
+    if (f[*cy][*cx] & _MF_MINE) f[*cy][*cx] -= _MF_MINE;
+    // 지뢰 개수 세기
+    for (i=0; i<*h; i++)
+    {
+      for (j=0; j<*w; j++) if (f[i][j] & _MF_MINE) numOfMines++;
+    }
+  }
 
-	if (f[*cy][*cx] & _MF_DISP_UNKNOWN)
-	{
-		// 지뢰를 밟았을 경우
-		if (f[*cy][*cx] & _MF_MINE)
-		{
-			return 0xFF;
-		}
-		// 지뢰를 밟지 않았을 경우
-		else
-		{
-			for (i=*cy-1; i<=*cy+1; i++)
-			{
-				for (j=*cx-1; j<=*cx+1; j++)
-				{
-					if (i<0 || i>=*h || j<0 || j>=*w) continue;
-					if (f[i][j] & _MF_MINE) count++;
-				}
-			}
-			if (count==0)
-			{
-				f[*cy][*cx] -= _MF_DISP_UNKNOWN;
-				f[*cy][*cx] |= _MF_DISP_EMPTY;
-				for (i=*cy-1; i<=*cy+1; i++)
-				{
-					for (j=*cx-1; j<=*cx+1; j++)
-					{
-						if (i<0 || i>=*h || j<0 || j>=*w) continue;
-						step(f, w, h, &j, &i);
-					}
-				}
-			}
-			else
-			{
-				f[*cy][*cx] -= _MF_DISP_UNKNOWN;
-				f[*cy][*cx] |= _MF_DISP_NUMBER;
-				f[*cy][*cx] |= (count << 24);
-			}
-			return 0;
-		}
-	}
-	else return -1;
+  if (f[*cy][*cx] & _MF_DISP_UNKNOWN)
+  {
+    // 지뢰를 밟았을 경우
+    if (f[*cy][*cx] & _MF_MINE)
+    {
+      return 0xFF;
+    }
+    // 지뢰를 밟지 않았을 경우
+    else
+    {
+      for (i=*cy-1; i<=*cy+1; i++)
+      {
+        for (j=*cx-1; j<=*cx+1; j++)
+        {
+          if (i<0 || i>=*h || j<0 || j>=*w) continue;
+          if (f[i][j] & _MF_MINE) count++;
+        }
+      }
+      if (count==0)
+      {
+        f[*cy][*cx] -= _MF_DISP_UNKNOWN;
+        f[*cy][*cx] |= _MF_DISP_EMPTY;
+        for (i=*cy-1; i<=*cy+1; i++)
+        {
+          for (j=*cx-1; j<=*cx+1; j++)
+          {
+            if (i<0 || i>=*h || j<0 || j>=*w) continue;
+            step(f, w, h, &j, &i);
+          }
+        }
+      }
+      else
+      {
+        f[*cy][*cx] -= _MF_DISP_UNKNOWN;
+        f[*cy][*cx] |= _MF_DISP_NUMBER;
+        f[*cy][*cx] |= (count << 24);
+      }
+      return 0;
+    }
+  }
+  else return -1;
 }
 
 int main(void)
 {
-	int **minefield;
-	int i, j, fW, fH, cX = 0, cY = 0;
-	int key, stepResult = 0;
+  int **minefield;
+  int i, j, fW, fH, cX = 0, cY = 0;
+  int key, stepResult = 0;
 
-	// 의사 난수 시드 생성
-	srand(time(NULL));
+  // 의사 난수 시드 생성
+  srand(time(NULL));
 
-	// 지뢰밭 크기 입력
-	while(1)
-	{
-		printf("Horizontal size (%d ~ %d)> ", _MF_W_MIN, _MF_W_MAX);
-		scanf("%d", &fW);
-		printf("Vertical size (%d ~ %d)> ", _MF_H_MIN, _MF_H_MAX);
-		scanf("%d", &fH);
+  // 지뢰밭 크기 입력
+  while(1)
+  {
+    printf("Horizontal size (%d ~ %d)> ", _MF_W_MIN, _MF_W_MAX);
+    scanf("%d", &fW);
+    printf("Vertical size (%d ~ %d)> ", _MF_H_MIN, _MF_H_MAX);
+    scanf("%d", &fH);
 
-		if(fW<_MF_W_MIN || fW>_MF_W_MAX || fH<_MF_H_MIN || fH>_MF_H_MAX) printf("[!] Input values are out of range. Please try again.\n");
-		else break;
-	}
+    if(fW<_MF_W_MIN || fW>_MF_W_MAX || fH<_MF_H_MIN || fH>_MF_H_MAX) printf("[!] Input values are out of range. Please try again.\n");
+    else break;
+  }
 
   initscr();
   getmaxyx(stdscr, rows, cols);
@@ -231,118 +231,118 @@ int main(void)
 
   colorOn();
 
-	// 지뢰밭 메모리에 할당 & 초기화
-	minefield = (int **) malloc(sizeof(int *) * fH);
-	for (i=0; i<fH; i++)
-	{
-		minefield[i] = (int *) malloc(sizeof(int) * fW);
-		for (j=0; j<fW; j++) minefield[i][j] = _MF_CLEAN | _MF_DISP_UNKNOWN;
-	}
+  // 지뢰밭 메모리에 할당 & 초기화
+  minefield = (int **) malloc(sizeof(int *) * fH);
+  for (i=0; i<fH; i++)
+  {
+    minefield[i] = (int *) malloc(sizeof(int) * fW);
+    for (j=0; j<fW; j++) minefield[i][j] = _MF_CLEAN | _MF_DISP_UNKNOWN;
+  }
 
-	// 맨 왼쪽 위를 현위치로 설정
-	minefield[cY][cX] |= _MF_CURSOR;
+  // 맨 왼쪽 위를 현위치로 설정
+  minefield[cY][cX] |= _MF_CURSOR;
 
-	updateDisplay(minefield, &fW, &fH, &cX, &cY);
+  updateDisplay(minefield, &fW, &fH, &cX, &cY);
 
-	//메인 게임 루프
-	while(1)
-	{
-		key = getch();
-		switch (key)
-		{
-		case 65:	// 위쪽 화살표
+  //메인 게임 루프
+  while(1)
+  {
+    key = getch();
+    switch (key)
+    {
+    case 65:  // 위쪽 화살표
     case 'k':
-			minefield[cY][cX] -= _MF_CURSOR;
-			if (cY==0) cY = fH - 1; else cY--;
-			minefield[cY][cX] |= _MF_CURSOR;
-			break;
-		case 68:	// 왼쪽 화살표
+      minefield[cY][cX] -= _MF_CURSOR;
+      if (cY==0) cY = fH - 1; else cY--;
+      minefield[cY][cX] |= _MF_CURSOR;
+      break;
+    case 68:  // 왼쪽 화살표
     case 'h':
-			minefield[cY][cX] -= _MF_CURSOR;
-			if (cX==0) cX = fW - 1; else cX--;
-			minefield[cY][cX] |= _MF_CURSOR;
-			break;
-		case 67:	// 오른쪽 화살표
+      minefield[cY][cX] -= _MF_CURSOR;
+      if (cX==0) cX = fW - 1; else cX--;
+      minefield[cY][cX] |= _MF_CURSOR;
+      break;
+    case 67:  // 오른쪽 화살표
     case 'l':
-			minefield[cY][cX] -= _MF_CURSOR;
-			if (cX==fW - 1) cX = 0; else cX++;
-			minefield[cY][cX] |= _MF_CURSOR;
-			break;
-		case 66:	// 아래쪽 화살표
+      minefield[cY][cX] -= _MF_CURSOR;
+      if (cX==fW - 1) cX = 0; else cX++;
+      minefield[cY][cX] |= _MF_CURSOR;
+      break;
+    case 66:  // 아래쪽 화살표
     case 'j':
-			minefield[cY][cX] -= _MF_CURSOR;
-			if (cY==fH - 1) cY = 0; else cY++;
-			minefield[cY][cX] |= _MF_CURSOR;
-			break;
+      minefield[cY][cX] -= _MF_CURSOR;
+      if (cY==fH - 1) cY = 0; else cY++;
+      minefield[cY][cX] |= _MF_CURSOR;
+      break;
 
-		case 102:	// 'f'
-			setFlag(minefield, &cX, &cY);
-			break;
-		case 113:	// 'q'
-			setQuestionMark(minefield, &cX, &cY);
-			break;
-		case 115:	// 's'
-			stepResult = step(minefield, &fW, &fH, &cX, &cY);
-			break;
+    case 102: // 'f'
+      setFlag(minefield, &cX, &cY);
+      break;
+    case 113: // 'q'
+      setQuestionMark(minefield, &cX, &cY);
+      break;
+    case 115: // 's'
+      stepResult = step(minefield, &fW, &fH, &cX, &cY);
+      break;
 
     case KEY_RESIZE:
       getmaxyx(stdscr, rows, cols);
       break;
-		}
-		// 게임 오버 동작
-		if (stepResult==0xFF)
-		{
-			for (i=0; i<fH; i++)
-			{
-				for (j=0; j<fW; j++) if (minefield[i][j] & _MF_MINE) minefield[i][j] = _MF_DISP_MINE;
-			}
-			updateDisplay(minefield, &fW, &fH, &cX, &cY);
+    }
+    // 게임 오버 동작
+    if (stepResult==0xFF)
+    {
+      for (i=0; i<fH; i++)
+      {
+        for (j=0; j<fW; j++) if (minefield[i][j] & _MF_MINE) minefield[i][j] = _MF_DISP_MINE;
+      }
+      updateDisplay(minefield, &fW, &fH, &cX, &cY);
       attron(COLOR_PAIR(2));
-			mvprintw(rows - 2, 0, "GAME OVER! You stepped on a mine!\n");
+      mvprintw(rows - 2, 0, "GAME OVER! You stepped on a mine!\n");
       clrtoeol();
-			mvprintw(rows - 1, 0, "Press any key to exit...");
+      mvprintw(rows - 1, 0, "Press any key to exit...");
       attroff(COLOR_PAIR(2));
       getch();
-			break;
-		}
-		// 클리어 동작
-		if (!newGame && numOfMines==flagCount)
-		{
-			clearValidate = 0;
-			for (i=0; i<fH; i++)
-			{
-				for (j=0; j<fW; j++)
-				{
-					if (minefield[i][j] & _MF_MINE && minefield[i][j] & _MF_DISP_FLAG) clearValidate++;
-				}
-			}
-			if (clearValidate==numOfMines)
-			{
-				for (i=0; i<fH; i++)
-				{
-					for (j=0; j<fW; j++) if (minefield[i][j] & _MF_MINE) minefield[i][j] = _MF_DISP_MINE_CLR;
-				}
-				updateDisplay(minefield, &fW, &fH, &cX, &cY);
+      break;
+    }
+    // 클리어 동작
+    if (!newGame && numOfMines==flagCount)
+    {
+      clearValidate = 0;
+      for (i=0; i<fH; i++)
+      {
+        for (j=0; j<fW; j++)
+        {
+          if (minefield[i][j] & _MF_MINE && minefield[i][j] & _MF_DISP_FLAG) clearValidate++;
+        }
+      }
+      if (clearValidate==numOfMines)
+      {
+        for (i=0; i<fH; i++)
+        {
+          for (j=0; j<fW; j++) if (minefield[i][j] & _MF_MINE) minefield[i][j] = _MF_DISP_MINE_CLR;
+        }
+        updateDisplay(minefield, &fW, &fH, &cX, &cY);
         attron(COLOR_PAIR(3));
-				mvprintw(rows - 2, 0, "CONGRATULATIONS! You've found all mine!\n");
+        mvprintw(rows - 2, 0, "CONGRATULATIONS! You've found all mine!\n");
         clrtoeol();
-				mvprintw(rows - 1, 0, "Press any key to continue...");
+        mvprintw(rows - 1, 0, "Press any key to continue...");
         attroff(COLOR_PAIR(3));
         getch();
-				break;
-			}
-		}
-		updateDisplay(minefield, &fW, &fH, &cX, &cY);
-	}
+        break;
+      }
+    }
+    updateDisplay(minefield, &fW, &fH, &cX, &cY);
+  }
 
-	for (i=0; i<fH; i++) free(minefield[i]);
-	free(minefield);
+  for (i=0; i<fH; i++) free(minefield[i]);
+  free(minefield);
 
   endwin();
 
   printf("C Minesweeper. Code by Dalgona. <dalgona@hontou.moe>\n");
 
-	return 0;
+  return 0;
 }
 
 void colorOn()
