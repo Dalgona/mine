@@ -1,0 +1,37 @@
+#define _MF_W_MIN 10
+#define _MF_W_MAX 60
+#define _MF_H_MIN 10
+#define _MF_H_MAX 20
+
+											// 화면 표시용 정보    | 게임 진행용 정보
+#define _MF_CLEAN			0x0000			// 0000 0000 0000 0000   0000 0000 0000 0000
+#define _MF_MINE			0x0001			// 0000 0000 0000 0000   0000 0000 0000 0001
+#define _MF_CURSOR			0x8000			// 0000 0000 0000 0000   1000 0000 0000 0000
+#define _MF_DISP_UNKNOWN	0x00010000		// 0000 0000 0000 0001   0000 0000 0000 0000
+#define _MF_DISP_EMPTY		0x00020000		// 0000 0000 0000 0010   0000 0000 0000 0000
+#define _MF_DISP_FLAG		0x00040000		// 0000 0000 0000 0100   0000 0000 0000 0000
+#define _MF_DISP_QUESTION	0x00080000		// 0000 0000 0000 1000   0000 0000 0000 0000
+#define _MF_DISP_MINE		0x00100000		// 0000 0000 0001 0000   0000 0000 0000 0000
+#define _MF_DISP_MINE_CLR	0x00E00000		// 0000 0000 1110 0000   0000 0000 0000 0000
+#define _MF_DISP_NUMBER		0x40000000		// 0100 XXXX 0000 0000   0000 0000 0000 0000 <-- XXXX 부분에는 주변의 지뢰 개수가 저장됨
+
+#define _COLOR_NORMAL		"\e[0m"
+#define _COLOR_NORMAL_CUR	"\e[107m"
+#define	_COLOR_GROUND		"\e[107m"
+#define _COLOR_GROUND_CUR	"\e[97m"
+#define _COLOR_FLAG			"\e[91m"
+#define _COLOR_FLAG_CUR		"\e[101m"
+#define _COLOR_ONE			"\e[107;94m"
+#define _COLOR_ONE_CUR		"\e[104;37m"
+#define _COLOR_TWO			"\e[107;32m"
+#define _COLOR_TWO_CUR		"\e[42;37m"
+#define _COLOR_THREE		"\e[107;31m"
+#define _COLOR_THREE_CUR	"\e[41;37m"
+#define _COLOR_FOUR			"\e[107;34m"
+#define _COLOR_FOUR_CUR		"\e[44;37m"
+#define _COLOR_FIVE			"\e[107;33m"
+#define _COLOR_FIVE_CUR		"\e[43;37m"
+#define _COLOR_SIX			"\e[107;36m"
+#define _COLOR_SIX_CUR		"\e[46;37m"
+#define _COLOR_EXPLOSION	"\e[101;93m"
+#define _COLOR_CLEARED		"\e[42;37m"
