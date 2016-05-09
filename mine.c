@@ -78,7 +78,9 @@ void updateDisplay(int **f, int *w, int *h, int *cx, int *cy)
       attroff(COLOR_PAIR(color));
 		}
 	}
-	mvprintw(rows - 1, 0, "ARROW: MOVE    f: FLAG    q: NOTSURE    s: STEP");
+  attron(COLOR_PAIR(1));
+	mvprintw(rows - 1, 0, "ARROW/hjkl: MOVE    f: FLAG    q: NOTSURE    s: STEP");
+  attroff(COLOR_PAIR(1));
   move(4 + *cy, 8 + *cx);
 
   refresh();
@@ -213,12 +215,12 @@ int main(void)
 	// 지뢰밭 크기 입력
 	while(1)
 	{
-		printf("지뢰밭의 가로 길이 (%d ~ %d)> ", _MF_W_MIN, _MF_W_MAX);
+		printf("Horizontal size (%d ~ %d)> ", _MF_W_MIN, _MF_W_MAX);
 		scanf("%d", &fW);
-		printf("지뢰밭의 세로 길이 (%d ~ %d)> ", _MF_H_MIN, _MF_H_MAX);
+		printf("Vertical size (%d ~ %d)> ", _MF_H_MIN, _MF_H_MAX);
 		scanf("%d", &fH);
 
-		if(fW<_MF_W_MIN || fW>_MF_W_MAX || fH<_MF_H_MIN || fH>_MF_H_MAX) printf("[!] 입력값이 범위를 초과했습니다. 다시 입력해 주십시오.\n");
+		if(fW<_MF_W_MIN || fW>_MF_W_MAX || fH<_MF_H_MIN || fH>_MF_H_MAX) printf("[!] Input values are out of range. Please try again.\n");
 		else break;
 	}
 
@@ -230,7 +232,6 @@ int main(void)
   colorOn();
 
 	// 지뢰밭 메모리에 할당 & 초기화
-	printf("creating minefield...\n");
 	minefield = (int **) malloc(sizeof(int *) * fH);
 	for (i=0; i<fH; i++)
 	{
@@ -250,21 +251,25 @@ int main(void)
 		switch (key)
 		{
 		case 65:	// 위쪽 화살표
+    case 'k':
 			minefield[cY][cX] -= _MF_CURSOR;
 			if (cY==0) cY = fH - 1; else cY--;
 			minefield[cY][cX] |= _MF_CURSOR;
 			break;
 		case 68:	// 왼쪽 화살표
+    case 'h':
 			minefield[cY][cX] -= _MF_CURSOR;
 			if (cX==0) cX = fW - 1; else cX--;
 			minefield[cY][cX] |= _MF_CURSOR;
 			break;
 		case 67:	// 오른쪽 화살표
+    case 'l':
 			minefield[cY][cX] -= _MF_CURSOR;
 			if (cX==fW - 1) cX = 0; else cX++;
 			minefield[cY][cX] |= _MF_CURSOR;
 			break;
 		case 66:	// 아래쪽 화살표
+    case 'j':
 			minefield[cY][cX] -= _MF_CURSOR;
 			if (cY==fH - 1) cY = 0; else cY++;
 			minefield[cY][cX] |= _MF_CURSOR;
@@ -279,6 +284,10 @@ int main(void)
 		case 115:	// 's'
 			stepResult = step(minefield, &fW, &fH, &cX, &cY);
 			break;
+
+    case KEY_RESIZE:
+      getmaxyx(stdscr, rows, cols);
+      break;
 		}
 		// 게임 오버 동작
 		if (stepResult==0xFF)
@@ -330,6 +339,8 @@ int main(void)
 	free(minefield);
 
   endwin();
+
+  printf("C Minesweeper. Code by Dalgona. <dalgona@hontou.moe>\n");
 
 	return 0;
 }
