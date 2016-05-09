@@ -1,18 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "getch.h"
+#include <ncurses.h>
 #include "mine.h"
+
+int rows, cols;
 
 int numOfMines = 0;		// 지뢰 개수
 int newGame = 1;		// 방금 시작된 게임인지 확인
 int flagCount = 0;		// 깃발 개수
 int clearValidate = 0;	// 클리어 판정용 카운터
 
-void changeColor(char *color)
-{
-	printf(color);
-}
+void colorOn();
 
 // 게임 화면 업데이트
 void updateDisplay(int **f, int *w, int *h, int *cx, int *cy)
@@ -20,68 +19,69 @@ void updateDisplay(int **f, int *w, int *h, int *cx, int *cy)
 	int i, j;
 	int isCursor;
 	int num;
-	char *colors[8] = {_COLOR_ONE, _COLOR_TWO, _COLOR_THREE,
-					 _COLOR_FOUR, _COLOR_FIVE, _COLOR_SIX,
-					 _COLOR_NORMAL, _COLOR_NORMAL};
-	char *colors_cur[8] = {_COLOR_ONE_CUR, _COLOR_TWO_CUR, _COLOR_THREE_CUR,
-						 _COLOR_FOUR_CUR, _COLOR_FIVE_CUR, _COLOR_SIX_CUR,
-						 _COLOR_NORMAL_CUR, _COLOR_NORMAL_CUR};
+  int color;
+  char ch;
 
-	system("clear");
-
-	printf("===== 지뢰 찾기 === 지뢰 : %03d/%03d개 === (%02d, %02d) =====\n\n", flagCount, numOfMines, *cx, *cy);
+  clear();
+	mvprintw(0, 0, "===== Minesweeper === %03d mines out of %03d === (%02d, %02d) =====", flagCount, numOfMines, *cx, *cy);
 	if (newGame)
 	{
-		changeColor("\e[92m");
-		printf("\t아무 데나 밟으면 지뢰가 배치되고 게임이 시작됩니다!\n\n");
-		changeColor(_COLOR_NORMAL);
+    attron(COLOR_PAIR(4));
+		mvprintw(2, 8, "Step anywhere to start the game!");
+    attroff(COLOR_PAIR(4));
 	}
+
 	for (i=0; i<*h; i++)
 	{
-		printf("\t");
+		move(4 + i, 8);
 		for (j=0; j<*w; j++)
 		{
-			isCursor = f[i][j] & _MF_CURSOR;
-			if (isCursor) changeColor(_COLOR_NORMAL_CUR);
-			if (f[i][j] & _MF_DISP_UNKNOWN) printf(".");
-			if (f[i][j] & _MF_DISP_FLAG)
+			if (f[i][j] & _MF_DISP_UNKNOWN)
+      {
+        color = 200;
+        ch = '.';
+      }
+			else if (f[i][j] & _MF_DISP_FLAG)
 			{
-				changeColor(isCursor ? _COLOR_FLAG_CUR : _COLOR_FLAG);
-				printf("F");
-				changeColor(_COLOR_NORMAL);
+        color = 201;
+				ch = 'F';
 			}
-			if (f[i][j] & _MF_DISP_QUESTION) printf("?");
-			if (f[i][j] & _MF_DISP_EMPTY)
+			else if (f[i][j] & _MF_DISP_QUESTION)
+      {
+        color = 202;
+        ch = '?';
+      }
+			else if (f[i][j] & _MF_DISP_EMPTY)
 			{
-				changeColor(isCursor ? _COLOR_GROUND_CUR : _COLOR_GROUND);
-				printf(" ");
-				changeColor(_COLOR_NORMAL);
+        color = 203;
+				ch = ' ';
 			}
-			if (f[i][j] & _MF_DISP_NUMBER)
+			else if (f[i][j] & _MF_DISP_NUMBER)
 			{
 				num = (f[i][j] % 0x10000000) / 0x01000000;
-				changeColor(isCursor ? colors_cur[num-1] : colors[num-1]);
-				printf("%d", num);
-				changeColor(_COLOR_NORMAL);
+        color = 100 + num;
+				ch = '0' + num;
 			}
-			if (f[i][j] & _MF_DISP_MINE)
+			else if (f[i][j] & _MF_DISP_MINE)
 			{
-				changeColor(_COLOR_EXPLOSION);
-				printf("@");
-				changeColor(_COLOR_NORMAL);
+        color = 204;
+				ch = '@';
 			}
-			if (f[i][j] & _MF_DISP_MINE_CLR)
+			else if (f[i][j] & _MF_DISP_MINE_CLR)
 			{
-				changeColor(_COLOR_CLEARED);
-				printf("@");
-				changeColor(_COLOR_NORMAL);
+        color = 205;
+				ch = '@';
 			}
-			if (f[i][j] & _MF_CURSOR) changeColor(_COLOR_NORMAL);
+
+      attron(COLOR_PAIR(color));
+      addch(ch);
+      attroff(COLOR_PAIR(color));
 		}
-		printf("\n");
 	}
-	printf("\n");
-	printf("화살표 키 = 이동\tf = 깃발\tq = 물음표\ts = 밟기\n");
+	mvprintw(rows - 1, 0, "ARROW: MOVE    f: FLAG    q: NOTSURE    s: STEP");
+  move(4 + *cy, 8 + *cx);
+
+  refresh();
 }
 
 // 깃발 꽂기
@@ -222,6 +222,13 @@ int main(void)
 		else break;
 	}
 
+  initscr();
+  getmaxyx(stdscr, rows, cols);
+  cbreak();
+  noecho();
+
+  colorOn();
+
 	// 지뢰밭 메모리에 할당 & 초기화
 	printf("creating minefield...\n");
 	minefield = (int **) malloc(sizeof(int *) * fH);
@@ -281,9 +288,12 @@ int main(void)
 				for (j=0; j<fW; j++) if (minefield[i][j] & _MF_MINE) minefield[i][j] = _MF_DISP_MINE;
 			}
 			updateDisplay(minefield, &fW, &fH, &cX, &cY);
-			changeColor(_COLOR_FLAG);
-			printf("게임 오버! 지뢰를 밟았습니다!\n");
-			changeColor(_COLOR_NORMAL);
+      attron(COLOR_PAIR(2));
+			mvprintw(rows - 2, 0, "GAME OVER! You stepped on a mine!\n");
+      clrtoeol();
+			mvprintw(rows - 1, 0, "Press any key to exit...");
+      attroff(COLOR_PAIR(2));
+      getch();
 			break;
 		}
 		// 클리어 동작
@@ -304,9 +314,12 @@ int main(void)
 					for (j=0; j<fW; j++) if (minefield[i][j] & _MF_MINE) minefield[i][j] = _MF_DISP_MINE_CLR;
 				}
 				updateDisplay(minefield, &fW, &fH, &cX, &cY);
-				changeColor("\e[92m");
-				printf("축하합니다! 모든 지뢰를 찾았습니다!\n");
-				changeColor(_COLOR_NORMAL);
+        attron(COLOR_PAIR(3));
+				mvprintw(rows - 2, 0, "CONGRATULATIONS! You've found all mine!\n");
+        clrtoeol();
+				mvprintw(rows - 1, 0, "Press any key to continue...");
+        attroff(COLOR_PAIR(3));
+        getch();
 				break;
 			}
 		}
@@ -316,5 +329,34 @@ int main(void)
 	for (i=0; i<fH; i++) free(minefield[i]);
 	free(minefield);
 
+  endwin();
+
 	return 0;
+}
+
+void colorOn()
+{
+  if (has_colors())
+  {
+    start_color();
+    init_pair(1, 255, 0);      // Guide text
+    init_pair(2, 197, 0);      // Game over message
+    init_pair(3, 118, 0);      // Game cleared message
+    init_pair(4, 86, 0);       // New game message
+    init_pair(101, 21, 250);   // Number 1
+    init_pair(102, 22, 250);   // Number 2
+    init_pair(103, 88, 250);   // Number 3
+    init_pair(104, 18, 250);   // Number 4
+    init_pair(105, 100, 250);  // Number 5
+    init_pair(106, 24, 250);   // Number 6
+    init_pair(107, 240, 250);  // Number 7
+    init_pair(108, 240, 250);  // Number 8
+    init_pair(109, 240, 250);  // Number 9
+    init_pair(200, 250, 253);  // Unexplored
+    init_pair(201, 196, 253);  // Flag
+    init_pair(202, 235, 253);  // Question
+    init_pair(203, 250, 250);  // Blank
+    init_pair(204, 226, 202);  // Explosion
+    init_pair(205, 235, 28);   // Correct
+  }
 }

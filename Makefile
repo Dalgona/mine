@@ -1,13 +1,12 @@
 CC=clang # set to whatever you use.
+PARAM=-lcurses
 
-mine: mine.o getch.o
-	$(CC) mine.o getch.o -o mine
+mine: mine.o
+	$(CC) mine.o -o mine $(PARAM)
 
 mine.o:
 	$(CC) -c mine.c
 
-getch.o:
-	$(CC) -c getch.c
-
 clean:
 	rm -f *.o
+	rm mine
