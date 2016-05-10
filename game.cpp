@@ -98,22 +98,22 @@ void game::setFlag()
 {
   int &cp = field[index(cY, cX)];
 
-  if (cp & _MF_DISP_UNKNOWN)
+  if (cp & MF_DISP_UNKNOWN)
   {
-    cp &= ~_MF_DISP_UNKNOWN;
-    cp |= _MF_DISP_FLAG;
+    cp &= ~MF_DISP_UNKNOWN;
+    cp |= MF_DISP_FLAG;
     nFlags++;
   }
-  else if (cp & _MF_DISP_QUESTION)
+  else if (cp & MF_DISP_QUESTION)
   {
-    cp &= ~_MF_DISP_QUESTION;
-    cp |= _MF_DISP_FLAG;
+    cp &= ~MF_DISP_QUESTION;
+    cp |= MF_DISP_FLAG;
     nFlags++;
   }
-  else if (cp & _MF_DISP_FLAG)
+  else if (cp & MF_DISP_FLAG)
   {
-    cp &= ~_MF_DISP_FLAG;
-    cp |= _MF_DISP_UNKNOWN;
+    cp &= ~MF_DISP_FLAG;
+    cp |= MF_DISP_UNKNOWN;
     nFlags--;
   }
 }
@@ -122,21 +122,21 @@ void game::setQuestionMark()
 {
   int &cp = field[index(cY, cX)];
 
-  if (cp & _MF_DISP_UNKNOWN)
+  if (cp & MF_DISP_UNKNOWN)
   {
-    cp &= ~_MF_DISP_UNKNOWN;
-    cp |= _MF_DISP_QUESTION;
+    cp &= ~MF_DISP_UNKNOWN;
+    cp |= MF_DISP_QUESTION;
   }
-  else if (cp & _MF_DISP_FLAG)
+  else if (cp & MF_DISP_FLAG)
   {
-    cp &= ~_MF_DISP_FLAG;
-    cp |= _MF_DISP_QUESTION;
+    cp &= ~MF_DISP_FLAG;
+    cp |= MF_DISP_QUESTION;
     nFlags--;
   }
-  else if (cp & _MF_DISP_QUESTION)
+  else if (cp & MF_DISP_QUESTION)
   {
-    cp &= ~_MF_DISP_QUESTION;
-    cp |= _MF_DISP_UNKNOWN;
+    cp &= ~MF_DISP_QUESTION;
+    cp |= MF_DISP_UNKNOWN;
   }
 }
 
