@@ -196,7 +196,6 @@ void game::updateDisplay()
   char ch;
 
   clear();
-  mvprintw(1, 0, "size: %d", field.size());
   mvprintw(0, 0, "[ MINESWEEPER ] %03d mines out of %03d (%02d, %02d)", nFlags, nMines, cX, cY);
   if (newGame)
   {
