@@ -200,11 +200,6 @@ int game::step(int cy, int cx)
 
 void game::updateDisplay()
 {
-  int i, j;
-  int num;
-  int color;
-  char ch;
-
   clear();
   mvprintw(0, 0, "[ MINESWEEPER ] %03d mines out of %03d (%02d, %02d)", nFlags, nMines, cX, cY);
   if (newGame)
@@ -214,36 +209,35 @@ void game::updateDisplay()
     attroff(COLOR_PAIR(4));
   }
 
-  // TODO: optimize (field is a 1-dimension vector)
-  for (i = 0; i < rows; i++)
+  int num, color, c = 0;
+  std::div_t d;
+  char ch;
+  for (const auto &i : field)
   {
-    move(4 + i, 8);
-    for (j = 0; j < cols; j++)
-    {
-      if      (field[index(i, j)] & MF_DISP_UNKNOWN)   color = 200, ch = '.';
-      else if (field[index(i, j)] & MF_DISP_FLAG)      color = 201, ch = 'F';
-      else if (field[index(i, j)] & MF_DISP_QUESTION)  color = 202, ch = '?';
-      else if (field[index(i, j)] & MF_DISP_EMPTY)     color = 203, ch = ' ';
-      else if (field[index(i, j)] & MF_DISP_NUMBER)
-      {
-        num = (field[index(i, j)] % 0x10000000) / 0x01000000;
-        color = 100 + num, ch = '0' + num;
-      }
-      else if (field[index(i, j)] & MF_DISP_MINE)      color = 204, ch = '@';
-      else if (field[index(i, j)] & MF_DISP_MINE_CLR)  color = 205, ch = '@';
+    d = std::div(c++, cols);
+    if (d.rem == 0) move(4 + d.quot, 8);
 
-      attron(COLOR_PAIR(color));
-      addch(ch);
-      attroff(COLOR_PAIR(color));
+    if      (i & MF_DISP_UNKNOWN)  color = 200, ch = '.';
+    else if (i & MF_DISP_FLAG)     color = 201, ch = 'F';
+    else if (i & MF_DISP_QUESTION) color = 202, ch = '?';
+    else if (i & MF_DISP_EMPTY)    color = 203, ch = ' ';
+    else if (i & MF_DISP_NUMBER)
+    {
+      num = (i & 0x0FFFFFFF) >> 24;
+      color = 100 + num, ch = '0' + num;
     }
+    else if (i & MF_DISP_MINE)     color = 204, ch = '@';
+    else if (i & MF_DISP_MINE_CLR) color = 205, ch = '@';
+
+    attron(COLOR_PAIR(color));
+    addch(ch);
+    attroff(COLOR_PAIR(color));
   }
 
   attron(COLOR_PAIR(1));
   mvprintw(screen.rows - 1, 0, "ARROW/hjkl: MOVE    f: FLAG    q: NOTSURE    s: STEP");
   attroff(COLOR_PAIR(1));
-
   move(4 + cY, 8 + cX);
-
   refresh();
 }
 
