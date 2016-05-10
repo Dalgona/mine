@@ -60,11 +60,8 @@ void game::start()
       for (auto &i : field) if (i & MF_MINE) i = MF_DISP_MINE;
       updateDisplay();
       attron(COLOR_PAIR(2));
-      mvprintw(screen.rows - 2, 0, "GAME OVER! You stepped on a mine!\n");
-      clrtoeol();
-      mvprintw(screen.rows - 1, 0, "Press any key to exit...");
+      mvprintw(screen.rows - 3, 0, "GAME OVER! You stepped on a mine!\n");
       attroff(COLOR_PAIR(2));
-      getch();
       break;
     }
     // Game Cleared
@@ -78,17 +75,21 @@ void game::start()
         for (auto &i : field) if (i & MF_MINE) i = MF_DISP_MINE_CLR;
         updateDisplay();
         attron(COLOR_PAIR(3));
-        mvprintw(screen.rows - 2, 0, "CONGRATULATIONS! You've found all mine!\n");
-        clrtoeol();
-        mvprintw(screen.rows - 1, 0, "Press any key to continue...");
+        mvprintw(screen.rows - 3, 0, "CONGRATULATIONS! You've found all mine!\n");
         attroff(COLOR_PAIR(3));
-        getch();
         break;
       }
     }
 
     updateDisplay();
   }
+
+  tEnd = steady_clock::now();
+  double elapsed = duration<double>(tEnd - tBegin).count();
+  mvprintw(screen.rows - 2, 0, "Elapsed time: %.3f seconds\n", elapsed);
+  clrtoeol();
+  mvprintw(screen.rows - 1, 0, "Press any key to exit...");
+  getch();
 
   // Finalize ncurses mode
   endwin();
@@ -168,6 +169,8 @@ int game::step(int cy, int cx)
       c++;
       if (c == nMines) break;
     }
+
+    tBegin = steady_clock::now();
   }
 
   if (cp & MF_DISP_UNKNOWN)

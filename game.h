@@ -3,6 +3,10 @@
 #define GAME_H_
 
 #include <vector>
+#include <chrono>
+
+using namespace std::chrono;
+using timePoint = time_point<steady_clock>;
 
 class game
 {
@@ -16,6 +20,7 @@ private:
   int clearValidate = 0;
   bool newGame = true;
   struct { int rows; int cols; } screen;
+  timePoint tBegin, tEnd;
 
 // Constructors
 public:
