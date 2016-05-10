@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <vector>
+#include <random>
 #include <cstdlib>
 #include <ctime>
+#include <cmath>
 #include <ncurses.h>
 
 #include "mine.h"
@@ -150,14 +152,22 @@ int game::step(int cy, int cx)
   {
     newGame = false;
     // Plant mines
-    // FIXME: currently the number of mines is also determined at random.
-    for (i = 0; i < std::rand() % rows + std::rand() % 6 + 1; i++)
-      for (j = 0; j < std::rand() % cols + std::rand () % 6 + 1; j++)
-        field[index(std::rand() % rows, std::rand() % cols)] |= MF_MINE;
-    if (cp & MF_MINE) cp &= ~MF_MINE;
+    long double x = std::log(2.15561e+9);
+    long double ratio = std::log(rows * cols) / x - 0.08101856l; // logarithmic
+    //long double ratio = 0.000207502l * rows * cols + 0.106649146l; // linear
+    nMines = (int)lround(ratio * rows * cols);
+    std::random_device rd;
+    std::uniform_int_distribution<int> dist(0, rows * cols - 1);
+    int idx, c = 0;
 
-    // Count the number of mines
-    for (const auto &i : field) if (i & MF_MINE) nMines++;
+    while (true)
+    {
+      idx = dist(rd);
+      if (idx == index(cy, cx) || field[idx] & MF_MINE) continue;
+      field[idx] |= MF_MINE;
+      c++;
+      if (c == nMines) break;
+    }
   }
 
   if (cp & MF_DISP_UNKNOWN)

@@ -2,9 +2,9 @@
 #ifndef MINE_H_
 #define MINE_H_
 
-#define MF_W_MIN 10
+#define MF_W_MIN 9
 #define MF_W_MAX 60
-#define MF_H_MIN 10
+#define MF_H_MIN 9
 #define MF_H_MAX 20
 
                                            // 화면 표시용 정보    | 게임 진행용 정보
