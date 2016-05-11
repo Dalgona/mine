@@ -11,8 +11,6 @@ void exit_game(void);
 
 int main(void)
 {
-  int fW, fH;
-
   menu mainMenu("[ MINESWEEPER ] Select game mode");
   mainMenu.add({ "Custom Mode", "Arcade Mode", "Exit" });
   mainMenu.start_menu({
