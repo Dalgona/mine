@@ -27,6 +27,7 @@ void game::start()
   noecho();
   colorOn();
 
+  clear();
   updateDisplay();
 
   std::srand(std::time(nullptr));
@@ -170,6 +171,7 @@ int game::step(int cy, int cx)
       if (c == nMines) break;
     }
 
+    clear();
     tBegin = steady_clock::now();
   }
 
@@ -203,7 +205,6 @@ int game::step(int cy, int cx)
 
 void game::updateDisplay()
 {
-  clear();
   mvprintw(0, 0, "[ MINESWEEPER ] ");
   if (newGame)
   {
