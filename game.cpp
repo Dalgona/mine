@@ -204,13 +204,15 @@ int game::step(int cy, int cx)
 void game::updateDisplay()
 {
   clear();
-  mvprintw(0, 0, "[ MINESWEEPER ] %03d mines out of %03d (%02d, %02d)", nFlags, nMines, cX, cY);
+  mvprintw(0, 0, "[ MINESWEEPER ] ");
   if (newGame)
   {
     attron(COLOR_PAIR(4));
-    mvprintw(2, 8, "Step anywhere to start the game!");
+    printw("Step anywhere to start the game!");
     attroff(COLOR_PAIR(4));
   }
+  else
+    printw("%03d mines out of %03d (%02d, %02d)", nFlags, nMines, cX, cY);
 
   int num, color, c = 0;
   std::div_t d;
@@ -218,7 +220,7 @@ void game::updateDisplay()
   for (const auto &i : field)
   {
     d = std::div(c++, cols);
-    if (d.rem == 0) move(4 + d.quot, 8);
+    if (d.rem == 0) move(2 + d.quot, 8);
 
     if      (i & MF_DISP_UNKNOWN)  color = 200, ch = '.';
     else if (i & MF_DISP_FLAG)     color = 201, ch = 'F';
@@ -240,7 +242,7 @@ void game::updateDisplay()
   attron(COLOR_PAIR(1));
   mvprintw(screen.rows - 1, 0, "ARROW/hjkl: MOVE    f: FLAG    q: NOTSURE    s: STEP");
   attroff(COLOR_PAIR(1));
-  move(4 + cY, 8 + cX);
+  move(2 + cY, 8 + cX);
   refresh();
 }
 
