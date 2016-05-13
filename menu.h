@@ -7,15 +7,12 @@
 #include <initializer_list>
 #include <functional>
 
-using menu_action = std::function<void(void)>;
-
 class menu
 {
 // Fields
 private:
   std::string title;
   std::vector<std::string> items;
-  std::vector<menu_action> handlers;
 
 // Public Fields
 public:
@@ -28,7 +25,7 @@ public:
 // Methods
 public:
   void add(std::initializer_list<std::string>);
-  void start_menu(std::initializer_list<menu_action>);
+  int start_menu(void);
 };
 
 #endif

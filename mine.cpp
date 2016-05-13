@@ -8,11 +8,11 @@
 #include "menu.h"
 #include "mine.h"
 
-typedef struct
+struct score_t
 {
   char name[11];
   int time;
-} score_t;
+};
 
 void begin_arcade(void);
 void arcade_leaderboard(void);
@@ -24,27 +24,30 @@ int main(void)
 {
   menu mainMenu("[ MINESWEEPER ] Select game mode");
   mainMenu.add({ "Custom Mode", "Arcade Mode", "Exit" });
-  mainMenu.start_menu({
-    []() { // Custom Mode Handler
-      int fW, fH;
-      printf("Hosizontal size (%d ~ %d)> ", MF_W_MIN, MF_W_MAX);
-      fflush(stdout);
-      scanf("%d", &fW);
-      printf("Vertical size (%d ~ %d)> ", MF_H_MIN, MF_H_MAX);
-      fflush(stdout);
-      scanf("%d", &fH);
+  int sel = mainMenu.start_menu();
+  switch (sel)
+  {
+  case 0:
+  {
+    int fW, fH;
+    printf("Hosizontal size (%d ~ %d)> ", MF_W_MIN, MF_W_MAX);
+    fflush(stdout);
+    scanf("%d", &fW);
+    printf("Vertical size (%d ~ %d)> ", MF_H_MIN, MF_H_MAX);
+    fflush(stdout);
+    scanf("%d", &fH);
 
-      if (fW < MF_W_MIN) fW = MF_W_MIN;
-      if (fW > MF_W_MAX) fW = MF_W_MAX;
-      if (fH < MF_H_MIN) fH = MF_H_MIN;
-      if (fH > MF_H_MAX) fH = MF_H_MAX;
+    if (fW < MF_W_MIN) fW = MF_W_MIN;
+    if (fW > MF_W_MAX) fW = MF_W_MAX;
+    if (fH < MF_H_MIN) fH = MF_H_MIN;
+    if (fH > MF_H_MAX) fH = MF_H_MAX;
 
-      game theGame(fH, fW);
-      theGame.start();
-    },
-    begin_arcade, // Arcade Mode Handler
-    exit_game,
-  });
+    game theGame(fH, fW);
+    theGame.start();
+  } break;
+  case 1: begin_arcade(); break;
+  case 2: exit_game(); break;
+  }
 
   exit_game();
 
@@ -60,11 +63,15 @@ void begin_arcade(void)
     "Expert (16x30, 99 mines)"
   });
   arcadeMenu.draw = arcade_leaderboard;
-  arcadeMenu.start_menu({
-    []() { game theGame(9, 9); theGame.start(); },
-    []() { game theGame(16, 16); theGame.start(); },
-    []() { game theGame(16, 30); theGame.start(); }
-  });
+  int sel = arcadeMenu.start_menu();
+  game *theGame;
+  switch (sel)
+  {
+  case 0: theGame = new game(9, 9); break;
+  case 1: theGame = new game(16, 16); break;
+  case 2: theGame = new game(16, 30); break;
+  }
+  theGame->start();
 }
 
 void arcade_leaderboard(void)

@@ -11,14 +11,11 @@ void menu::add(std::initializer_list<std::string> list)
     items.push_back(i);
 }
 
-void menu::start_menu(std::initializer_list<menu_action> list)
+int menu::start_menu(void)
 {
   int nModes = items.size();
 
-  for (const auto &i : list)
-    handlers.push_back(i);
-  if (!nModes) return;
-  if (nModes != handlers.size()) return;
+  if (!nModes) return -1;
 
   initscr();
   cbreak();
@@ -48,11 +45,11 @@ void menu::start_menu(std::initializer_list<menu_action> list)
     case 'k':
       if (sel > 0) sel--; break;
     }
-    if (ch == 10) break;
+    if (ch == 10)
+    {
+      curs_set(1);
+      endwin();
+      return sel;
+    }
   }
-
-  curs_set(1);
-  endwin();
-  menu_action action = handlers[sel];
-  if (action != nullptr) action();
 }
