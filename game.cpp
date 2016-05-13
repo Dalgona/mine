@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <ratio>
 #include <ncurses.h>
 
 #include "mine.h"
@@ -63,6 +64,7 @@ void game::start()
       attron(COLOR_PAIR(2));
       mvprintw(screen.rows - 3, 0, "GAME OVER! You stepped on a mine!\n");
       attroff(COLOR_PAIR(2));
+      this->result.win = false;
       break;
     }
     // Game Cleared
@@ -78,6 +80,7 @@ void game::start()
         attron(COLOR_PAIR(3));
         mvprintw(screen.rows - 3, 0, "CONGRATULATIONS! You've found all mine!\n");
         attroff(COLOR_PAIR(3));
+        this->result.win = true;
         break;
       }
     }
@@ -86,15 +89,18 @@ void game::start()
   }
 
   tEnd = steady_clock::now();
-  double elapsed = duration<double>(tEnd - tBegin).count();
-  mvprintw(screen.rows - 2, 0, "Elapsed time: %.3f seconds\n", elapsed);
+  int elapsed = this->result.time =  (int)duration<double, std::centi>(tEnd - tBegin).count();
+  mvprintw(screen.rows - 2, 0, "Elapsed time: %04d.%02d seconds\n", elapsed / 100, elapsed % 100);
   clrtoeol();
   mvprintw(screen.rows - 1, 0, "Press any key to exit...");
   getch();
 
   // Finalize ncurses mode
+  clear();
   endwin();
 }
+
+const game_result &game::get_result() const { return this->result; }
 
 int game::index(int row, int col) const { return row * cols + col; }
 

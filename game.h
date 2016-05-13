@@ -8,6 +8,12 @@
 using namespace std::chrono;
 using timePoint = time_point<steady_clock>;
 
+struct game_result
+{
+  bool win;
+  int time;
+};
+
 class game
 {
 // Fields
@@ -21,6 +27,7 @@ private:
   bool newGame = true;
   struct { int rows; int cols; } screen;
   timePoint tBegin, tEnd;
+  game_result result;
 
 // Constructors
 public:
@@ -30,6 +37,7 @@ public:
 // Methods
 public:
   void start();
+  const game_result &get_result() const;
 
 // Private functions
 private:

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 #include <ncurses.h>
 
 #include "game.h"
@@ -72,6 +73,35 @@ void begin_arcade(void)
   case 2: theGame = new game(16, 30); break;
   }
   theGame->start();
+
+  auto result = theGame->get_result();
+  auto &vec = scores[sel];
+  if (/*result.win && */result.time < vec[4].time)
+  {
+    score_t score { "TEST      ", result.time };
+    vec.push_back(score);
+    std::stable_sort(vec.begin(), vec.end(), [](const score_t &a, const score_t &b)
+      {
+        return a.time < b.time;
+      });
+    std::ofstream data("scores.dat", std::ios::out | std::ios::binary);
+    for (int i = 0; i < 3; i++)
+      for (int j = 0; j < 5; j++)
+      {
+        data.write(scores[i][j].name, 11);
+        data.write((char *)&scores[i][j].time, 4);
+      }
+    data.close();
+  }
+
+  initscr();
+  cbreak();
+  noecho();
+
+  arcade_leaderboard();
+
+  getch();
+  endwin();
 }
 
 void arcade_leaderboard(void)
