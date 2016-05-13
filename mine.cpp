@@ -74,11 +74,45 @@ void begin_arcade(void)
   }
   theGame->start();
 
+  initscr();
+  cbreak();
+  noecho();
+
   auto result = theGame->get_result();
   auto &vec = scores[sel];
   if (/*result.win && */result.time < vec[4].time)
   {
-    score_t score { "TEST      ", result.time };
+    score_t score { "          ", result.time };
+    {
+      int pos = 0;
+      int ch;
+
+      refresh();
+      WINDOW *nameWin = newwin(13, 39, 0, 0);
+      mvwprintw(nameWin, 0, 5, "C O N G R A T U L A T I O N S");
+      mvwprintw(nameWin, 2, 4, "A   N E W   H I G H   S C O R E");
+      mvwprintw(nameWin, 4, 0, "What is your name?");
+      mvwprintw(nameWin, 8, 0, "Accepted Characters: A-Z, 0-9 and SPACE");
+      mvwprintw(nameWin, 12, 5, "BkSp: ERASE     Enter: DECIDE");
+      while (true)
+      {
+        for (int i = 0; i < 10; i++)
+          mvwprintw(nameWin, 6, 4 * i, "[%c]", score.name[i]);
+        wrefresh(nameWin);
+        ch = getch();
+        if ((ch >= 'A' && ch <= 'Z')
+            || (ch >= '0' && ch <= '9')
+            || ch == ' ')
+        { if (pos < 10) score.name[pos++] = ch; }
+        else if (ch >= 'a' && ch <= 'z')
+        { if (pos < 10) score.name[pos++] = ch - 32; }
+        else if (ch == 127)
+        { if (pos != 0) score.name[--pos] = ' '; }
+        else if (ch == 10)
+          break;
+      }
+      delwin(nameWin);
+    }
     vec.push_back(score);
     std::stable_sort(vec.begin(), vec.end(), [](const score_t &a, const score_t &b)
       {
@@ -93,15 +127,14 @@ void begin_arcade(void)
       }
     data.close();
   }
+  delete theGame;
 
-  initscr();
-  cbreak();
-  noecho();
-
+  clear(); // TODO
   arcade_leaderboard();
 
   getch();
   endwin();
+
 }
 
 void arcade_leaderboard(void)
@@ -119,8 +152,7 @@ void arcade_leaderboard(void)
   data.close();
 
   refresh();
-  WINDOW *lbw;
-  lbw = newwin(9, 78, 8, 1);
+  WINDOW *lbw = newwin(9, 78, 8, 1);
 
   mvwprintw(lbw, 0, 28, "H A L L   O F   F A M E");
 
