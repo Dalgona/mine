@@ -10,7 +10,7 @@ int main(void)
   for (int i = 0; i < 15; i++)
   {
     file << "__________";
-    file.write("\0\0\0\0", 4);
+    file.write("\x00\xff\xff\xff\x7f", 5);
   }
   std::cout << "Closing file...\n";
   file.close();

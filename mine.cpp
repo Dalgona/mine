@@ -1,13 +1,24 @@
 #include <cstdio>
 #include <iostream>
+#include <fstream>
+#include <vector>
 #include <ncurses.h>
 
 #include "game.h"
 #include "menu.h"
 #include "mine.h"
 
-void show_arcade(void);
+typedef struct
+{
+  char name[11];
+  int time;
+} score_t;
+
+void begin_arcade(void);
+void arcade_leaderboard(void);
 void exit_game(void);
+
+std::vector<score_t> scores[3];
 
 int main(void)
 {
@@ -31,7 +42,7 @@ int main(void)
       game theGame(fH, fW);
       theGame.start();
     },
-    show_arcade, // Arcade Mode Handler
+    begin_arcade, // Arcade Mode Handler
     exit_game,
   });
 
@@ -40,7 +51,7 @@ int main(void)
   return 0;
 }
 
-void show_arcade(void)
+void begin_arcade(void)
 {
   menu arcadeMenu("[ MINESWEEPER ] Select difficulty");
   arcadeMenu.add({
@@ -48,11 +59,54 @@ void show_arcade(void)
     "Intermediate (16x16, 45 mines)",
     "Expert (16x30, 99 mines)"
   });
+  arcadeMenu.draw = arcade_leaderboard;
   arcadeMenu.start_menu({
     []() { game theGame(9, 9); theGame.start(); },
     []() { game theGame(16, 16); theGame.start(); },
     []() { game theGame(16, 30); theGame.start(); }
   });
+}
+
+void arcade_leaderboard(void)
+{
+  std::ifstream data("scores.dat", std::ios::in | std::ios::binary);
+  for (int i = 0; i < 3; i++)
+  {
+    scores[i].resize(5);
+    for (int j = 0; j < 5; j++)
+    {
+      data.read(scores[i][j].name, 11);
+      data.read((char *)&scores[i][j].time, 4);
+    }
+  }
+  data.close();
+
+  refresh();
+  WINDOW *lbw;
+  lbw = newwin(9, 78, 8, 1);
+
+  mvwprintw(lbw, 0, 28, "H A L L   O F   F A M E");
+
+  mvwprintw(lbw, 2, 8, "BEGINNER");
+  mvwprintw(lbw, 2, 33, "INTERMEDIATE");
+  mvwprintw(lbw, 2, 63, "EXPERT");
+
+  const char *nth[] { "1st", "2nd", "3rd", "4th", "5th" };
+  int iPart, dPart;
+  for (int i = 0; i < 3; i++)
+  {
+    int col = 27 * i;
+    for (int j = 0; j < 5; j++)
+    {
+      score_t &sc = scores[i][j];
+      if (sc.time > 999999) iPart = 9999, dPart = 99;
+      else iPart = sc.time / 100, dPart = sc.time % 100;
+      mvwprintw(lbw, 4 + j, col, "%s  %10s  %04d.%02d", nth[j], sc.name, iPart, dPart);
+    }
+  }
+
+  wrefresh(lbw);
+  delwin(lbw);
 }
 
 void exit_game(void)

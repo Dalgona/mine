@@ -24,6 +24,7 @@ void menu::start_menu(std::initializer_list<menu_action> list)
   cbreak();
   noecho();
   clear();
+  curs_set(0);
 
   mvprintw(0, 0, "%s", title.c_str());
 
@@ -50,6 +51,7 @@ void menu::start_menu(std::initializer_list<menu_action> list)
     if (ch == 10) break;
   }
 
+  curs_set(1);
   endwin();
   menu_action action = handlers[sel];
   if (action != nullptr) action();
