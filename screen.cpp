@@ -60,8 +60,11 @@ void screen::mvprintw(int row, int col, const char *format, ...)
 }
 
 void screen::with_color(int pair, std::function<void(void)> action)
+{ with_color(stdscr, pair, action); }
+
+void screen::with_color(WINDOW *win, int pair, std::function<void(void)> action)
 {
-  attron(COLOR_PAIR(pair));
+  wattron(win, COLOR_PAIR(pair));
   action();
-  attroff(COLOR_PAIR(pair));
+  wattroff(win, COLOR_PAIR(pair));
 }

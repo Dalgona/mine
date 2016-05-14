@@ -30,6 +30,7 @@ public:
   void printw(const char *format, ...);
   void mvprintw(int row, int col, const char *format, ...);
   void with_color(int pair, std::function<void(void)> action);
+  void with_color(WINDOW *win, int pair, std::function<void(void)> action);
 };
 
 #endif

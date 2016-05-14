@@ -255,6 +255,7 @@ void game::initColors()
   init_pair(2, 197, 0);      // Game over message
   init_pair(3, 118, 0);      // Game cleared message
   init_pair(4, 86, 0);       // New game message
+  /* pairs 11~100 are reserved */
   init_pair(101, 21, 250);   // Number 1
   init_pair(102, 22, 250);   // Number 2
   init_pair(103, 88, 250);   // Number 3

@@ -21,10 +21,12 @@ int menu::start_menu(void)
   clear();
   curs_set(0);
 
-  scr->mvprintw(0, 0, "%s", title.c_str());
+  scr->with_color(11, [&]() {
+    scr->mvprintw(0, 0, "%s", title.c_str());
+  });
 
   for (int i = 0; i < nModes; i++)
-    scr->mvprintw(2 + i, 4, "< > %s", items[i].c_str());
+    scr->mvprintw(2 + i, 8, "%s", items[i].c_str());
 
   if (draw != nullptr) draw();
 
@@ -32,8 +34,8 @@ int menu::start_menu(void)
   while (true)
   {
     for (int i = 0; i < nModes; i++)
-      mvaddch(2 + i, 5, ' ');
-    mvaddch(2 + sel, 5, '*');
+      scr->with_color(12, [&]() { scr->mvprintw(2 + i, 4, "   "); });
+    scr->with_color(13, [&]() { scr->mvprintw(2 + sel, 4, "   "); });
     refresh();
     int ch = getch();
     switch (ch)

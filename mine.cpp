@@ -19,6 +19,7 @@ struct score_t
 void begin_arcade(void);
 void arcade_leaderboard(void);
 void name_input(score_t &score);
+void initColors();
 void exit_game(void);
 
 screen *scr;
@@ -28,6 +29,7 @@ int main(void)
 {
   scr = screen::getInstance();
   scr->enable();
+  initColors();
 
   menu mainMenu(scr, "[ MINESWEEPER ] Select game mode");
   mainMenu.add({ "Custom Mode", "Arcade Mode", "Exit" });
@@ -115,9 +117,9 @@ void begin_arcade(void)
 
   getch();
   endwin();
-
 }
 
+#define LBC(x, y) scr->with_color(lbw, (x), [&]() { y });
 void arcade_leaderboard(void)
 {
   std::ifstream data("scores.dat", std::ios::in | std::ios::binary);
@@ -135,11 +137,11 @@ void arcade_leaderboard(void)
   refresh();
   WINDOW *lbw = newwin(9, 78, 8, 1);
 
-  mvwprintw(lbw, 0, 27, " H A L L   O F   F A M E ");
+  LBC(14, mvwprintw(lbw, 0, 27, " H A L L   O F   F A M E "););
 
-  mvwprintw(lbw, 2, 8, "BEGINNER");
-  mvwprintw(lbw, 2, 33, "INTERMEDIATE");
-  mvwprintw(lbw, 2, 63, "EXPERT");
+  LBC(15, mvwprintw(lbw, 2, 8, "BEGINNER"););
+  LBC(16, mvwprintw(lbw, 2, 33, "INTERMEDIATE"););
+  LBC(17, mvwprintw(lbw, 2, 63, "EXPERT"););
 
   const char *nth[] { "1st", "2nd", "3rd", "4th", "5th" };
   int iPart, dPart;
@@ -151,13 +153,15 @@ void arcade_leaderboard(void)
       score_t &sc = scores[i][j];
       if (sc.time > 999999) iPart = 9999, dPart = 99;
       else iPart = sc.time / 100, dPart = sc.time % 100;
-      mvwprintw(lbw, 4 + j, col, "%s  %10s  %04d.%02d", nth[j], sc.name, iPart, dPart);
+      LBC(20 + j, mvwprintw(lbw, 4 + j, col, "%s", nth[j]););
+      wprintw(lbw, "  %10s  %04d.%02d", sc.name, iPart, dPart);
     }
   }
 
   wrefresh(lbw);
   delwin(lbw);
 }
+#undef LBC
 
 void name_input(score_t &score)
 {
@@ -199,6 +203,22 @@ void name_input(score_t &score)
   }
 
   delwin(nameWin);
+}
+
+void initColors(void)
+{
+  init_pair(11, 255, 0);    // white on black
+  init_pair(12, 233, 234);  // menu unselected
+  init_pair(13, 82, 82);    // menu selected
+  init_pair(14, 123, 0);    // leaderboard title
+  init_pair(15, 82, 0);     // beginner
+  init_pair(16, 172, 0);    // intermediate
+  init_pair(17, 198, 0);    // expert
+  init_pair(20, 227, 0);    // 1st
+  init_pair(21, 254, 0);    // 2nd
+  init_pair(22, 178, 0);    // 3rd
+  init_pair(23, 243, 0);    // 4th
+  init_pair(24, 243, 0);    // 5th
 }
 
 void exit_game(void)
