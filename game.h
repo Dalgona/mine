@@ -5,6 +5,8 @@
 #include <vector>
 #include <chrono>
 
+#include "screen.h"
+
 using namespace std::chrono;
 using timePoint = time_point<steady_clock>;
 
@@ -18,6 +20,7 @@ class game
 {
 // Fields
 private:
+  screen *scr;
   std::vector<int> field;
   int rows, cols;
   int cY = 0, cX = 0;
@@ -25,13 +28,12 @@ private:
   int nFlags = 0;
   int clearValidate = 0;
   bool newGame = true;
-  struct { int rows; int cols; } screen;
   timePoint tBegin, tEnd;
   game_result result;
 
 // Constructors
 public:
-  game(int r, int c);
+  game(screen *scr, int r, int c);
   ~game();
 
 // Methods
@@ -42,7 +44,7 @@ public:
 // Private functions
 private:
   int index(int row, int col) const;
-  void colorOn();
+  void initColors();
   void updateDisplay();
   void setFlag();
   void setQuestionMark();

@@ -7,12 +7,15 @@
 #include <initializer_list>
 #include <functional>
 
+#include "screen.h"
+
 class menu
 {
 // Fields
 private:
   std::string title;
   std::vector<std::string> items;
+  screen *scr;
 
 // Public Fields
 public:
@@ -20,7 +23,7 @@ public:
 
 // Constructors
 public:
-  menu(std::string);
+  menu(screen *scr, std::string);
 
 // Methods
 public:

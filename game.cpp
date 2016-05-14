@@ -10,8 +10,8 @@
 #include "mine.h"
 #include "game.h"
 
-game::game(int r, int c)
-  : rows(r), cols(c)
+game::game(screen *scr, int r, int c)
+  : scr(scr), rows(r), cols(c)
 {
   field = std::vector<int>(rows * cols);
   std::fill(field.begin(), field.end(), MF_CLEAN | MF_DISP_UNKNOWN);
@@ -22,11 +22,9 @@ game::~game() { }
 void game::start()
 {
   // Initialize ncurses mode
-  initscr();
-  getmaxyx(stdscr, screen.rows, screen.cols);
-  cbreak();
-  noecho();
-  colorOn();
+  if (!scr->enabled) return;
+
+  initColors();
 
   clear();
   updateDisplay();
@@ -51,19 +49,19 @@ void game::start()
     case 's': result = step(cY, cX); break;
 
     case KEY_RESIZE:
-      getmaxyx(stdscr, screen.rows, screen.cols);
+      scr->updateMaxYX();
+      clear();
       break;
     }
-    // end of switch statement
 
     // Game Over
     if (result == 0xFF)
     {
       for (auto &i : field) if (i & MF_MINE) i = MF_DISP_MINE;
       updateDisplay();
-      attron(COLOR_PAIR(2));
-      mvprintw(screen.rows - 3, 0, "GAME OVER! You stepped on a mine!\n");
-      attroff(COLOR_PAIR(2));
+      scr->with_color(2, [&]() {
+        scr->mvprintw(-3, 0, "GAME OVER! You stepped on a mine!");
+      });
       this->result.win = false;
       break;
     }
@@ -77,9 +75,9 @@ void game::start()
       {
         for (auto &i : field) if (i & MF_MINE) i = MF_DISP_MINE_CLR;
         updateDisplay();
-        attron(COLOR_PAIR(3));
-        mvprintw(screen.rows - 3, 0, "CONGRATULATIONS! You've found all mine!\n");
-        attroff(COLOR_PAIR(3));
+        scr->with_color(3, [&]() {
+          scr->mvprintw(-3, 0, "CONGRATULATIONS! You've found all mine!");
+        });
         this->result.win = true;
         break;
       }
@@ -90,9 +88,9 @@ void game::start()
 
   tEnd = steady_clock::now();
   int elapsed = this->result.time =  (int)duration<double, std::centi>(tEnd - tBegin).count();
-  mvprintw(screen.rows - 2, 0, "Elapsed time: %04d.%02d seconds\n", elapsed / 100, elapsed % 100);
+  scr->mvprintw(-2, 0, "Elapsed time: %04d.%02d seconds\n", elapsed / 100, elapsed % 100);
   clrtoeol();
-  mvprintw(screen.rows - 1, 0, "Press any key to exit...");
+  scr->mvprintw(-1, 0, "Press any key to exit...");
   getch();
 
   // Finalize ncurses mode
@@ -211,15 +209,15 @@ int game::step(int cy, int cx)
 
 void game::updateDisplay()
 {
-  mvprintw(0, 0, "[ MINESWEEPER ] ");
+  scr->mvprintw(0, 0, "[ MINESWEEPER ] ");
   if (newGame)
   {
-    attron(COLOR_PAIR(4));
-    printw("Step anywhere to start the game!");
-    attroff(COLOR_PAIR(4));
+    scr->with_color(4, [&]() {
+      scr->printw("Step anywhere to start the game!");
+    });
   }
   else
-    printw("%03d mines out of %03d (%02d, %02d)", nFlags, nMines, cX, cY);
+    scr->printw("%03d mines out of %03d (%02d, %02d)", nFlags, nMines, cX, cY);
 
   int num, color, c = 0;
   std::div_t d;
@@ -241,41 +239,35 @@ void game::updateDisplay()
     else if (i & MF_DISP_MINE)     color = 204, ch = '@';
     else if (i & MF_DISP_MINE_CLR) color = 205, ch = '@';
 
-    attron(COLOR_PAIR(color));
-    addch(ch);
-    attroff(COLOR_PAIR(color));
+    scr->with_color(color, [&]() { addch(ch); });
   }
 
-  attron(COLOR_PAIR(1));
-  mvprintw(screen.rows - 1, 0, "ARROW/hjkl: MOVE    f: FLAG    q: NOTSURE    s: STEP");
-  attroff(COLOR_PAIR(1));
+  scr->with_color(1, [&]() {
+    scr->mvprintw(-1, 0, "ARROW/hjkl: MOVE    f: FLAG    q: NOTSURE    s: STEP");
+  });
   move(2 + cY, 8 + cX);
   refresh();
 }
 
-void game::colorOn()
+void game::initColors()
 {
-  if (has_colors())
-  {
-    start_color();
-    init_pair(1, 255, 0);      // Guide text
-    init_pair(2, 197, 0);      // Game over message
-    init_pair(3, 118, 0);      // Game cleared message
-    init_pair(4, 86, 0);       // New game message
-    init_pair(101, 21, 250);   // Number 1
-    init_pair(102, 22, 250);   // Number 2
-    init_pair(103, 88, 250);   // Number 3
-    init_pair(104, 18, 250);   // Number 4
-    init_pair(105, 100, 250);  // Number 5
-    init_pair(106, 24, 250);   // Number 6
-    init_pair(107, 240, 250);  // Number 7
-    init_pair(108, 240, 250);  // Number 8
-    init_pair(109, 240, 250);  // Number 9
-    init_pair(200, 250, 253);  // Unexplored
-    init_pair(201, 196, 253);  // Flag
-    init_pair(202, 235, 253);  // Question
-    init_pair(203, 250, 250);  // Blank
-    init_pair(204, 226, 202);  // Explosion
-    init_pair(205, 235, 28);   // Correct
-  }
+  init_pair(1, 255, 0);      // Guide text
+  init_pair(2, 197, 0);      // Game over message
+  init_pair(3, 118, 0);      // Game cleared message
+  init_pair(4, 86, 0);       // New game message
+  init_pair(101, 21, 250);   // Number 1
+  init_pair(102, 22, 250);   // Number 2
+  init_pair(103, 88, 250);   // Number 3
+  init_pair(104, 18, 250);   // Number 4
+  init_pair(105, 100, 250);  // Number 5
+  init_pair(106, 24, 250);   // Number 6
+  init_pair(107, 240, 250);  // Number 7
+  init_pair(108, 240, 250);  // Number 8
+  init_pair(109, 240, 250);  // Number 9
+  init_pair(200, 250, 253);  // Unexplored
+  init_pair(201, 196, 253);  // Flag
+  init_pair(202, 235, 253);  // Question
+  init_pair(203, 250, 250);  // Blank
+  init_pair(204, 226, 202);  // Explosion
+  init_pair(205, 235, 28);   // Correct
 }

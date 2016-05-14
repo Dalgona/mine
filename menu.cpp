@@ -1,8 +1,8 @@
 #include <ncurses.h>
 #include "menu.h"
 
-menu::menu(std::string title)
-  : title(title)
+menu::menu(screen *scr, std::string title)
+  : scr(scr), title(title)
 { }
 
 void menu::add(std::initializer_list<std::string> list)
@@ -16,17 +16,15 @@ int menu::start_menu(void)
   int nModes = items.size();
 
   if (!nModes) return -1;
+  if (!scr->isEnabled()) return -1;
 
-  initscr();
-  cbreak();
-  noecho();
   clear();
   curs_set(0);
 
-  mvprintw(0, 0, "%s", title.c_str());
+  scr->mvprintw(0, 0, "%s", title.c_str());
 
   for (int i = 0; i < nModes; i++)
-    mvprintw(2 + i, 4, "< > %s", items[i].c_str());
+    scr->mvprintw(2 + i, 4, "< > %s", items[i].c_str());
 
   if (draw != nullptr) draw();
 
@@ -44,11 +42,14 @@ int menu::start_menu(void)
       if (sel < nModes - 1) sel++; break;
     case 'k':
       if (sel > 0) sel--; break;
+    case KEY_RESIZE:
+      scr->updateMaxYX();
+      if (draw != nullptr) draw();
+      break;
     }
     if (ch == 10)
     {
       curs_set(1);
-      endwin();
       return sel;
     }
   }

@@ -5,3 +5,4 @@ mine
 reset-scores
 test
 scores.dat
+*.dSYM

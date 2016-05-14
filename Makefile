@@ -3,8 +3,11 @@ CCPARAM=-lcurses
 
 all: mine reset-scores
 
-mine: mine.o game.o menu.o
-	$(CC) mine.o game.o menu.o -o mine $(CCPARAM)
+debug:
+	clang++ --std=c++11 -g mine.cpp game.cpp menu.cpp screen.cpp -lcurses -o mine
+
+mine: mine.o game.o menu.o screen.o
+	$(CC) mine.o game.o menu.o screen.o -o mine $(CCPARAM)
 
 mine.o:
 	$(CC) -c mine.cpp
@@ -14,6 +17,9 @@ game.o:
 
 menu.o:
 	$(CC) -c menu.cpp
+
+screen.o:
+	$(CC) -c screen.cpp
 
 reset-scores:
 	$(CC) reset-scores.cpp -o reset-scores
