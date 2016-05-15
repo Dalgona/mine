@@ -22,7 +22,9 @@ int menu::start_menu(void)
   curs_set(0);
 
   scr->with_color(11, [&]() {
+    attron(A_BOLD);
     scr->mvprintw(0, 0, "%s", title.c_str());
+    attroff(A_BOLD);
   });
 
   for (int i = 0; i < nModes; i++)

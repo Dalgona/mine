@@ -92,7 +92,7 @@ void begin_arcade(void)
 
   auto result = theGame->get_result();
   auto &vec = scores[sel];
-  if (/*result.win && */result.time < vec[4].time)
+  if (result.win && result.time < vec[4].time)
   {
     score_t score { "          ", result.time };
     name_input(score);
@@ -137,11 +137,12 @@ void arcade_leaderboard(void)
   refresh();
   WINDOW *lbw = newwin(9, 78, 8, 1);
 
+  wattron(lbw, A_BOLD);
   LBC(14, mvwprintw(lbw, 0, 27, " H A L L   O F   F A M E "););
-
   LBC(15, mvwprintw(lbw, 2, 8, "BEGINNER"););
   LBC(16, mvwprintw(lbw, 2, 33, "INTERMEDIATE"););
   LBC(17, mvwprintw(lbw, 2, 63, "EXPERT"););
+  wattroff(lbw, A_BOLD);
 
   const char *nth[] { "1st", "2nd", "3rd", "4th", "5th" };
   int iPart, dPart;
@@ -163,29 +164,35 @@ void arcade_leaderboard(void)
 }
 #undef LBC
 
+#define NIC(x, y) scr->with_color(nameWin, (x), [&]() { y });
 void name_input(score_t &score)
 {
   int pos = 0;
   int ch;
 
+  curs_set(0);
   WINDOW *nameWin;
   auto drawForm = [&]()
   {
     clear();
     refresh();
     nameWin = newwin(13, 39, scr->getRows() / 2 - 6, scr->getCols() / 2 - 19);
-    mvwprintw(nameWin, 0, 5, "C O N G R A T U L A T I O N S");
-    mvwprintw(nameWin, 2, 4, "A   N E W   H I G H   S C O R E");
-    mvwprintw(nameWin, 4, 0, "What is your name?");
-    mvwprintw(nameWin, 8, 0, "Accepted Characters: A-Z, 0-9 and SPACE");
-    mvwprintw(nameWin, 12, 5, "BkSp: ERASE     Enter: DECIDE");
+    wattron(nameWin, A_BOLD);
+    NIC(18, mvwprintw(nameWin, 0, 5, "C O N G R A T U L A T I O N S"););
+    NIC(19, mvwprintw(nameWin, 2, 4, "A   N E W   H I G H   S C O R E"););
+    wattroff(nameWin, A_BOLD);
+    NIC(11, mvwprintw(nameWin, 4, 0, "What is your name?");
+           mvwprintw(nameWin, 8, 0, "Accepted Characters: A-Z, 0-9 and SPACE"););
+    NIC(23, mvwprintw(nameWin, 12, 5, "BkSp: ERASE     Enter: DECIDE"););
   };
   drawForm();
 
   while (true)
   {
-    for (int i = 0; i < 10; i++)
-      mvwprintw(nameWin, 6, 4 * i, "[%c]", score.name[i]);
+    for (int i = 0; i < pos; i++)
+      NIC(31, mvwprintw(nameWin, 6, 4 * i, " %c ", score.name[i]););
+    for (int i = pos; i < 10; i++)
+      NIC(30, mvwprintw(nameWin, 6, 4 * i, " %c ", score.name[i]););
     wrefresh(nameWin);
     ch = getch();
     if ((ch >= 'A' && ch <= 'Z')
@@ -203,22 +210,27 @@ void name_input(score_t &score)
   }
 
   delwin(nameWin);
+  curs_set(1);
 }
 
 void initColors(void)
 {
   init_pair(11, 255, 0);    // white on black
-  init_pair(12, 233, 234);  // menu unselected
+  init_pair(12, 234, 234);  // menu unselected
   init_pair(13, 82, 82);    // menu selected
   init_pair(14, 123, 0);    // leaderboard title
   init_pair(15, 82, 0);     // beginner
   init_pair(16, 172, 0);    // intermediate
   init_pair(17, 198, 0);    // expert
+  init_pair(18, 227, 0);    // name title 1
+  init_pair(19, 214, 0);    // name title 2
   init_pair(20, 227, 0);    // 1st
   init_pair(21, 254, 0);    // 2nd
   init_pair(22, 178, 0);    // 3rd
   init_pair(23, 243, 0);    // 4th
   init_pair(24, 243, 0);    // 5th
+  init_pair(30, 238, 234);  // name blank
+  init_pair(31, 123, 17);   // name char
 }
 
 void exit_game(void)
