@@ -27,7 +27,7 @@ This is a small toy I made just for fun, when I was a high school student. And n
         The ratio of mines (R) is determined by following formula:<br>
         (n is the number of total cells, i.e., rows * cols)
 
-        ![](http://www.sciweavers.org/tex2img.php?eq=R%28n%29%3D%5Clog_%7B2.15561%5Ctimes10%5E%7B9%7D%7D%28n%29-0.08101856&bc=Transparent&fc=Black&im=png&fs=18&ff=concmath&edit=0)
+        ![](http://include.iostream.kr/res/mine_ratio.png)
 
 * The elapsed time is displayed in seconds when the game is over.
 
