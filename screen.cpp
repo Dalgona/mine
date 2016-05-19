@@ -19,6 +19,7 @@ void screen::enable()
   initscr();
   cbreak();
   noecho();
+  keypad(stdscr, true);
   updateMaxYX();
   if (has_colors())
     start_color();

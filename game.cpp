@@ -39,10 +39,10 @@ void game::start()
 
     switch (key)
     {
-    case 'h': cX = cX == 0 ? cols - 1 : cX - 1; break;
-    case 'j': cY = cY == rows - 1 ? 0 : cY + 1; break;
-    case 'k': cY = cY == 0 ? rows - 1 : cY - 1; break;
-    case 'l': cX = cX == cols - 1 ? 0 : cX + 1; break;
+    case KEY_LEFT:  case 'h': cX = cX == 0 ? cols - 1 : cX - 1; break;
+    case KEY_DOWN:  case 'j': cY = cY == rows - 1 ? 0 : cY + 1; break;
+    case KEY_UP:    case 'k': cY = cY == 0 ? rows - 1 : cY - 1; break;
+    case KEY_RIGHT: case 'l': cX = cX == cols - 1 ? 0 : cX + 1; break;
 
     case 'f': setFlag();             break;
     case 'q': setQuestionMark();     break;

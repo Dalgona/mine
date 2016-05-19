@@ -42,8 +42,10 @@ int menu::start_menu(void)
     int ch = getch();
     switch (ch)
     {
+    case KEY_DOWN:
     case 'j':
       if (sel < nModes - 1) sel++; break;
+    case KEY_UP:
     case 'k':
       if (sel > 0) sel--; break;
     case KEY_RESIZE:
