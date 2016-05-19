@@ -1,9 +1,9 @@
 #include <cstdio>
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <algorithm>
 #include <ncurses.h>
+#include <sys/file.h>
 
 #include "screen.h"
 #include "game.h"
@@ -101,18 +101,21 @@ void begin_arcade(void)
       {
         return a.time < b.time;
       });
-    std::ofstream data("scores.dat", std::ios::out | std::ios::binary);
+    FILE *data = fopen("scores.dat", "wb");
+    int fd = fileno(data);
+    flock(fd, LOCK_EX);
     for (int i = 0; i < 3; i++)
       for (int j = 0; j < 5; j++)
       {
-        data.write(scores[i][j].name, 11);
-        data.write((char *)&scores[i][j].time, 4);
+        fwrite(scores[i][j].name, 11, 1, data);
+        fwrite(&scores[i][j].time, 4, 1, data);
       }
-    data.close();
+    flock(fd, LOCK_UN);
+    fclose(data);
   }
   delete theGame;
 
-  clear(); // TODO
+  clear();
   arcade_leaderboard();
 
   getch();
@@ -122,17 +125,20 @@ void begin_arcade(void)
 #define LBC(x, y) scr->with_color(lbw, (x), [&]() { y });
 void arcade_leaderboard(void)
 {
-  std::ifstream data("scores.dat", std::ios::in | std::ios::binary);
+  FILE *data = fopen("scores.dat", "rb");
+  int fd = fileno(data);
+  flock(fd, LOCK_EX);
   for (int i = 0; i < 3; i++)
   {
     scores[i].resize(5);
     for (int j = 0; j < 5; j++)
     {
-      data.read(scores[i][j].name, 11);
-      data.read((char *)&scores[i][j].time, 4);
+      fread(scores[i][j].name, 11, 1, data);
+      fread(&scores[i][j].time, 4, 1, data);
     }
   }
-  data.close();
+  flock(fd, LOCK_UN);
+  fclose(data);
 
   refresh();
   WINDOW *lbw = newwin(9, 78, 8, 1);
