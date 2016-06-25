@@ -61,7 +61,6 @@ int main(void)
   case 2: exit_game(); break;
   }
 
-  scr->disable();
   exit_game();
 
   return 0;
@@ -119,7 +118,6 @@ void begin_arcade(void)
   arcade_leaderboard();
 
   getch();
-  endwin();
 }
 
 #define LBC(x, y) scr->with_color(lbw, (x), [&]() { y });
@@ -241,6 +239,7 @@ void initColors(void)
 
 void exit_game(void)
 {
+  scr->disable();
   printf("C Minesweeper. Code by Dalgona. <dalgona@hontou.moe>\n");
   exit(0);
 }

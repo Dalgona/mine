@@ -93,9 +93,7 @@ void game::start()
   scr->mvprintw(-1, 0, "Press any key to exit...");
   getch();
 
-  // Finalize ncurses mode
   clear();
-  endwin();
 }
 
 const game_result &game::get_result() const { return this->result; }
