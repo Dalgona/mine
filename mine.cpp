@@ -205,7 +205,7 @@ void name_input(score_t &score)
     { if (pos < 10) score.name[pos++] = ch; }
     else if (ch >= 'a' && ch <= 'z')
     { if (pos < 10) score.name[pos++] = ch - 32; }
-    else if (ch == 127)
+    else if (ch == 8 || ch == KEY_BACKSPACE)
     { if (pos != 0) score.name[--pos] = ' '; }
     else if (ch == KEY_RESIZE)
     { scr->updateMaxYX(); delwin(nameWin); drawForm(); }

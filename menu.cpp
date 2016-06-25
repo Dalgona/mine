@@ -39,7 +39,7 @@ int menu::start_menu(void)
       scr->with_color(12, [&]() { scr->mvprintw(2 + i, 4, "   "); });
     scr->with_color(13, [&]() { scr->mvprintw(2 + sel, 4, "   "); });
     refresh();
-    int ch = getch();
+    int ch = wgetch(stdscr);
     switch (ch)
     {
     case KEY_DOWN:
@@ -52,9 +52,8 @@ int menu::start_menu(void)
       scr->updateMaxYX();
       if (draw != nullptr) draw();
       break;
-    }
-    if (ch == 10)
-    {
+    case KEY_ENTER:
+    case '\n':
       curs_set(1);
       return sel;
     }

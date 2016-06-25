@@ -90,8 +90,15 @@ void game::start()
   int elapsed = this->result.time =  (int)duration<double, std::centi>(tEnd - tBegin).count();
   scr->mvprintw(-2, 0, "Elapsed time: %04d.%02d seconds\n", elapsed / 100, elapsed % 100);
   clrtoeol();
-  scr->mvprintw(-1, 0, "Press any key to exit...");
-  getch();
+  {
+    scr->mvprintw(-1, 0, "Press ENTER to exit...");
+    int key;
+    while (true)
+    {
+      key = getch();
+      if (key == KEY_ENTER || key == '\n') break;
+    }
+  }
 
   clear();
 }
