@@ -43,3 +43,7 @@ This is a small toy I made just for fun, when I was a high school student. And n
 ### May 19th 2016
 
 * The score data file (`scores.dat`) is locked when a process is reading data from/writing data to that file.
+
+### June 26th 2016
+
+* Fixed key handling issues.
